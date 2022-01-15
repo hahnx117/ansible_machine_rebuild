@@ -1,6 +1,7 @@
 ---
 - hosts: localhost
   gather_facts: false
+  become: yes
 
   vars:
     fedora_version: 35
@@ -46,6 +47,7 @@
     - name: Install packages
       yum:
         name:
+          - git
           - dnf-plugins-core
           - akmod-nvidia
           - xorg-x11-drv-nvidia-cuda
@@ -55,3 +57,10 @@
           - vlc
           - puppet
         state: present
+
+    - name: remove OpenSC and parole
+      yum:
+        name:
+          - opensc
+          - parole
+        state: absent
