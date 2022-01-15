@@ -56,6 +56,7 @@
           - /tmp/MullvadVPN.rpm
           - vlc
           - puppet
+          - /home/david/Downloads/slack-4.22.0-0.1.fc21.x86_64.rpm
         state: present
 
     - name: remove OpenSC and parole
