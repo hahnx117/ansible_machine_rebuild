@@ -57,6 +57,8 @@
           - vlc
           - puppet
           - /home/david/Downloads/slack-4.22.0-0.1.fc21.x86_64.rpm
+          - ntfs-3g-devel.x86_64
+          - gparted
         state: present
 
     - name: remove OpenSC and parole
