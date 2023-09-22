@@ -4,10 +4,10 @@ A repo for Ansible playbooks to rebuild machines
 ## Machines and Categories
 
 ### Mac Mini
-+ mac-mini
-    + tranmission
-        + settings.json
-    + /etc/fstab
++ ~mac-mini~
+    + ~tranmission~
+        + ~settings.json~
+    + ~/etc/fstab~
 
 ### Dells
 + haho-services
