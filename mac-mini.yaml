@@ -1,0 +1,50 @@
+- hosts: all
+  gather_facts: false
+  become: yes
+
+  vars:
+    haho-media_ip: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          62333365633338383034303630353161346530326534616433343830393335616263386639663239
+          3164613230356661663335626138326464646533386432610a396538303438636564306130396439
+          62353833323663623161383266666138663532393032616636613137643238353066343630386563
+          3433643330386434610a333430636239343562396563306330306663663838326330653130373662
+          6530
+    haho-media_mountpoint: /mnt/haho-media
+  
+  tasks:
+    - name: create haho-media mount point
+      file:
+        path: "{{ haho-media_mountpoint }}"
+        state: directory
+        mode: 0755
+    
+    - name: create /etc/fstab entry for haho-media
+      mount:
+        path: "{{ haho-media_mountpoint }}"
+        src: "{{ haho-media_ip }}:/mnt/haho-media"
+        fstype: nfs
+        opts: defaults
+        state: mounted
+        dump: 0
+        passno: 1
+
+    - name: install transmission daemon
+      apt:
+        name: transmission-daemon
+        state: latest
+
+    - name: place transmission settings.yaml
+      copy:
+        src: files/transmission/settings.json
+        dest: /etc/transmission-daemon/settings.json
+        owner: debian-transmission
+        group: debian-transmission
+        mode: 0644
+
+
+    - name: start transmission daemon
+      service:
+        name: transmission-daemon
+        state: started
+        enabled: yes
