@@ -22,3 +22,10 @@ A repo for Ansible playbooks to rebuild machines
 + weather_pi
 + adsb_pi
 
+
+## Ansible Galaxy Roles
+
+```
+ansible-galaxy collection install community.docker
+```
+
