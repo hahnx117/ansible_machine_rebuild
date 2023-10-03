@@ -10,7 +10,7 @@
       apt:
         name: git
         state: latest
-    
+
     - name: install docker dependencies
       apt:
         name:
@@ -18,13 +18,13 @@
           - curl
           - gnupg
         state: latest
-    
+
     - name: create docker keyring directory
       file:
         path: /etc/apt/keyrings
         state: directory
         mode: 0755
-    
+
     - name: remove old docker gpg key
       file:
         path: /etc/apt/keyrings/docker.gpg
@@ -35,7 +35,7 @@
         url: https://download.docker.com/linux/raspbian/gpg
         dest: /tmp/docker.gpg_armored
         mode: 0644
-    
+
     - name: De-Armor Docker GPG key
       shell:  gpg --dearmor <  /tmp/docker.gpg_armored > /etc/apt/keyrings/docker.gpg
       args:
@@ -58,19 +58,19 @@
           - docker-compose-plugin
           - docker-compose
         state: latest
-      
+
     - name: add user to docker group
       user:
         name: "{{ ansible_user }}"
         groups: docker
         append: yes
-    
+
     - name: start docker service
       service:
         name: docker
         state: started
         enabled: yes
-    
+
     - name: clone docker_rtsp repo
       git:
         repo: https://github.com/hahnx117/docker_rtsp.git
