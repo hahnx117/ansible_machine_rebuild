@@ -10,6 +10,7 @@
       "aarch": "arm64"
       "armhf": "armhf"
       "armv7l": "armhf"
+      "armv6l": "armhf"
 
   tasks:
     - name: install git
@@ -81,5 +82,8 @@
       git:
         repo: https://github.com/hahnx117/docker_rtsp.git
         dest: /home/{{ ansible_user }}/docker_rtsp
+        key_file: /home/{{ ansible_user }}/.ssh/id_rsa
+      become: yes
+      become_user: "{{ ansible_user }}"
 
 
