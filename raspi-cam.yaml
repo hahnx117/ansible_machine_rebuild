@@ -21,7 +21,7 @@
       with_items:
         - docker_rtsp
         - pi_cam_environment
-        - ha_hdhr_to_mqtt
-        - docker_compose
+        #- ha_hdhr_to_mqtt
+        #- docker_compose
 
 

@@ -29,3 +29,13 @@ A repo for Ansible playbooks to rebuild machines
 ansible-galaxy collection install community.docker
 ```
 
+
+## Usage
+### `raspi-cam.yaml`
+
+Can comment out various Docker repos. Uses `local_docker_pi` role that installs Docker and allows the an insecure registry on a single IP for local testing.
+
+```
+ansible-playbook -i <hostname_or_ip>, raspi-cam.yaml -K --ask-vault-pass
+```
+
