@@ -1,0 +1,67 @@
+---
+# tasks file for local_docker_pi
+- name: install docker dependencies
+  apt:
+    name:
+      - ca-certificates
+      - curl
+      - gnupg
+    state: latest
+
+- name: create docker keyring directory
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: 0755
+
+- name: remove old docker gpg key
+  file:
+    path: /etc/apt/keyrings/docker.gpg
+    state: absent
+
+- name: get docker gpg key
+  get_url:
+    url: https://download.docker.com/linux/raspbian/gpg
+    dest: /tmp/docker.gpg_armored
+    mode: 0644
+
+- name: De-Armor Docker GPG key
+  shell:  gpg --dearmor <  /tmp/docker.gpg_armored > /etc/apt/keyrings/docker.gpg
+  args:
+    creates: /etc/apt/keyrings/docker.gpg
+
+- name: add docker repo to apt
+  apt_repository:
+    repo: deb [arch={{ architecture_map[ansible_architecture] }} signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian bullseye stable
+    state: present
+    filename: /etc/apt/sources.list.d/docker.list
+    update_cache: yes
+
+- name: install docker
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io 
+      - docker-buildx-plugin 
+      - docker-compose-plugin
+      - docker-compose
+    state: latest
+
+- name: add user to docker group
+  user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes
+
+- name: append line in docker service file to allow insecure registries (local)
+  lineinfile:
+    path: /usr/lib/systemd/system/docker.service
+    regexp: '^ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock'
+    line: ExecStart=/usr/bin/dockerd --insecure-registry {{ docker_registry_ip }}:{{ docker_registry_port }} -H fd:// --containerd=/run/containerd/containerd.sock
+
+- name: start docker service
+  service:
+    name: docker
+    state: started
+    enabled: yes

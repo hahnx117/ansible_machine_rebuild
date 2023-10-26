@@ -1,0 +1,12 @@
+---
+# vars file for local_docker_pi
+ansible_user: "david"
+architecture_map:
+  "x86_64": "amd64"
+  "aarch64": "arm64"
+  "aarch": "arm64"
+  "armhf": "armhf"
+  "armv7l": "armhf"
+  "armv6l": "armhf"
+docker_registry_ip: "192.168.0.149"
+docker_registry_port: "5000"
