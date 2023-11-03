@@ -12,6 +12,9 @@
           6530
     haho-media_mountpoint: /mnt/haho-media
   
+  roles:
+    - node_exporter
+
   tasks:
     - name: create haho-media mount point
       file:

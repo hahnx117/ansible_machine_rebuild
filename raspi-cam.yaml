@@ -4,6 +4,7 @@
 
   roles:
     - local_docker_pi
+    - node_exporter
 
   tasks:
     - name: install git
@@ -19,9 +20,8 @@
       become: yes
       become_user: "{{ ansible_user }}"
       with_items:
-        - docker_rtsp
-        - pi_cam_environment
+        #- docker_rtsp
+        #- pi_cam_environment
         #- ha_hdhr_to_mqtt
         #- docker_compose
-
 

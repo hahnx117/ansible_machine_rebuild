@@ -1,0 +1,6 @@
+---
+# tasks file for node_exporter
+- name: install node exporter
+  apt:
+    name: prometheus-node-exporter
+    state: latest
