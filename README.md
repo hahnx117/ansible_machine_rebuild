@@ -39,3 +39,61 @@ Can comment out various Docker repos. Uses `local_docker_pi` role that installs 
 ansible-playbook -i <hostname_or_ip>, raspi-cam.yaml -K --ask-vault-pass
 ```
 
+## David Desktop
++ Slack
++ Zoom
++ VS Code
+
+### Directories
+```
+/mnt/backup
+/mnt/common_backup
+```
+
+### Windows Restoration Steps
+1. Boot Windows USB
+2. Get to Command Prompt
+3. launch `diskpart`
+4. select windows disk
+5. Either get the disk drive letter or assign one
+6. `bcdboot <drive_letter>:\Windows`
+
+
+### `os-prober` Steps
+```
+sudo os-prober
+sudo grub2-mkconfig -o /etc/grub2-efi.cfg
+```
+
+### Packages
+```
+gstreamer1-plugin-openh264
+mozilla-openh264
+```
+
+#### Slack
+https://slack.com/downloads/linux
+
+#### VS Code
+```
+sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+
+sudo sh -c 'echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo'
+```
+
+#### Zoom
+https://zoom.us/client/5.16.10.668/zoom_x86_64.rpm (11/28/2023)
+
+#### Firefox Videos
+```
+sudo dnf install gstreamer1-plugin-openh264 mozilla-openh264
+```
+
+#### Proton VPN
+https://protonvpn.com/support/official-linux-vpn-fedora/
+
+```
+wget https://repo.protonvpn.com/fedora-39-stable/protonvpn-stable-release/protonvpn-stable-release-1.0.1-2.noarch.rpm
+
+sudo dnf install ./protonvpn-stable-release-1.0.1-2.noarch.rpm
+```
