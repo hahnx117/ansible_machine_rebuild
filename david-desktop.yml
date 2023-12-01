@@ -80,6 +80,16 @@ tasks:
       name: "/tmp/zoom_x86_64.rpm"
       state: present
 
+  - name: install proton VPN
+    get_url:
+      url: https://repo.protonvpn.com/fedora-39-stable/protonvpn-stable-release/protonvpn-stable-release-1.0.1-2.noarch.rpm
+      dest: "/tmp/protonvpn-stable-release-1.0.1-2.noarch.rpm"
+  
+  - name: install proton VPN
+    yum:
+      name: "/tmp/protonvpn-stable-release-1.0.1-2.noarch.rpm"
+      state: present
+
   - name: install packages
     yum:
       name: "{{ packages }}"

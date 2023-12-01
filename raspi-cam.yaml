@@ -12,14 +12,14 @@
         name: git
         state: latest
 
-    - name: clone docker_rtsp repo
-      git:
-        repo: https://github.com/hahnx117/{{ item }}.git
-        dest: /home/{{ ansible_user }}/{{ item }}
-        key_file: /home/{{ ansible_user }}/.ssh/id_rsa
-      become: yes
-      become_user: "{{ ansible_user }}"
-      with_items:
+          #    - name: clone docker_rtsp repo
+          #      git:
+          # repo: https://github.com/hahnx117/{{ item }}.git
+          # dest: /home/{{ ansible_user }}/{{ item }}
+          #key_file: /home/{{ ansible_user }}/.ssh/id_rsa
+          #become: yes
+          #become_user: "{{ ansible_user }}"
+          #with_items:
         #- docker_rtsp
         #- pi_cam_environment
         #- ha_hdhr_to_mqtt
