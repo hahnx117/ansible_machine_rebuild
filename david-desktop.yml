@@ -1,96 +1,98 @@
 ---
-hosts: localhost
-become: true
+- hosts: localhost
+  become: true
 
-vars:
-  packages:
-    - gstreamer1-plugin-openh264
-    - mozilla-openh264
-    - gqrx
-    - thonny
-    - remmina
-    - mediawriter
-    - code
-  slack_version: 4.35.126
-  zoom_version: 5.16.10.668
+  vars:
+    packages:
+      - gstreamer1-plugin-openh264
+      - mozilla-openh264
+      - gqrx
+      - thonny
+      - remmina
+      - mediawriter
+      - code
+    slack_version: 4.35.126
+    zoom_version: 5.16.10.668
+  vars_files:
+    - ./variables/david_desktop_variables.yml
 
-tasks:
-  - name: Create personal backup directory
-    file:
-      path: "{{ backup_directory_personal }}"
-      state: directory
-      owner: "{{ backup_username }}"
-      group: "{{ backup_username }}"
-      mode: 0755
+  tasks:
+    #    - name: Create personal backup directory
+    # file:
+    #   path: "{{ backup_directory_personal }}"
+    #   state: directory
+    #   owner: "{{ backup_username }}"
+    #   group: "{{ backup_username }}"
+    #   mode: 0755
 
-  - name: create common backup directory
-    file:
-      path: "{{ backup_directory_common }}"
-      state: directory
-      owner: "{{ backup_username }}"
-      group: "{{ backup_username }}"
-      mode: 0755
+    #- name: create common backup directory
+    # file:
+    #   path: "{{ backup_directory_common }}"
+    #   state: directory
+    #   owner: "{{ backup_username }}"
+    #   group: "{{ backup_username }}"
+    #   mode: 0755
 
-  - name: mount backup directory
-    mount:
-      path: "{{ backup_directory_personal }}"
-      src: "//{{ backup_ip }}/david_backup"
-      fstype: cifs
-      opts: "username={{ backup_username }},password={{ backup_password }},uid={{ backup_username }},gid={{ backup_username }},vers=2.0"
-      state: mounted
+    #- name: mount backup directory
+    # mount:
+    #   path: "{{ backup_directory_personal }}"
+    #   src: "//{{ backup_ip }}/david_backup"
+    #   fstype: cifs
+    #   opts: "username={{ backup_username }},password={{ backup_password }},uid={{ backup_username }},gid={{ backup_username }},vers=2.0"
+    #   state: mounted
 
-  - name: mount common backup directory
-    mount:
-      path: "{{ backup_directory_common }}"
-      src: "//{{ backup_ip }}/common_backup"
-      fstype: cifs
-      opts: "username={{ backup_username }},password={{ backup_password }},uid={{ backup_username }},gid={{ backup_username }},vers=2.0"
-      state: mounted
+    #- name: mount common backup directory
+    # mount:
+    #   path: "{{ backup_directory_common }}"
+    #   src: "//{{ backup_ip }}/common_backup"
+    #   fstype: cifs
+    #   opts: "username={{ backup_username }},password={{ backup_password }},uid={{ backup_username }},gid={{ backup_username }},vers=2.0"
+    #   state: mounted
 
-  - name: download slack
-    get_url:
-      url: https://downloads.slack-edge.com/releases/linux/{{ slack_version }}/prod/x64/slack-{{ slack_version }}-0.1.el8.x86_64.rpm
-      dest: "/tmp/slack-{{ slack_version }}-0.1.el8.x86_64.rpm"
+    - name: download slack
+      get_url:
+        url: https://downloads.slack-edge.com/releases/linux/{{ slack_version }}/prod/x64/slack-{{ slack_version }}-0.1.el8.x86_64.rpm
+        dest: "/tmp/slack-{{ slack_version }}-0.1.el8.x86_64.rpm"
 
-  - name: install slack
-    yum:
-      name: "/tmp/{{ slack_version }}.el8.x86_64.rpm"
-      state: present
+    - name: install slack
+      yum:
+        name: "/tmp/slack-{{ slack_version }}-0.1.el8.x86_64.rpm"
+        state: present
 
-  - name: add VS code key
-    rpm_key:
-      key: https://packages.microsoft.com/keys/microsoft.asc
-      state: present
+    - name: add VS code key
+      rpm_key:
+        key: https://packages.microsoft.com/keys/microsoft.asc
+        state: present
 
-  - name: place vs code repo into /etc/yum.repos.d/
-    copy:
-      src: /home/david/ansible/roles/david_desktop/files/vscode.repo
-      dest: /etc/yum.repos.d/vscode.repo
-      owner: root
-      group: root
-      mode: 0644
+    - name: place vs code repo into /etc/yum.repos.d/
+      copy:
+        src: /home/david/ansible/roles/david_desktop/files/vscode.repo
+        dest: /etc/yum.repos.d/vscode.repo
+        owner: root
+        group: root
+        mode: 0644
 
-  - name: download zoom
-    get_url:
-      url: https://zoom.us/client/{{ zoom_version }}/zoom_x86_64.rpm
-      dest: "/tmp/zoom_x86_64.rpm"
+    - name: download zoom
+      get_url:
+        url: https://zoom.us/client/{{ zoom_version }}/zoom_x86_64.rpm
+        dest: "/tmp/zoom_x86_64.rpm"
 
-  - name: install zoom
-    yum:
-      name: "/tmp/zoom_x86_64.rpm"
-      state: present
+    - name: install zoom
+      yum:
+        name: "/tmp/zoom_x86_64.rpm"
+        state: present
 
-  - name: install proton VPN
-    get_url:
-      url: https://repo.protonvpn.com/fedora-39-stable/protonvpn-stable-release/protonvpn-stable-release-1.0.1-2.noarch.rpm
-      dest: "/tmp/protonvpn-stable-release-1.0.1-2.noarch.rpm"
+    - name: install proton VPN
+      get_url:
+        url: https://repo.protonvpn.com/fedora-39-stable/protonvpn-stable-release/protonvpn-stable-release-1.0.1-2.noarch.rpm
+        dest: "/tmp/protonvpn-stable-release-1.0.1-2.noarch.rpm"
   
-  - name: install proton VPN
-    yum:
-      name: "/tmp/protonvpn-stable-release-1.0.1-2.noarch.rpm"
-      state: present
+    - name: install proton VPN
+      yum:
+        name: "/tmp/protonvpn-stable-release-1.0.1-2.noarch.rpm"
+        state: present
 
-  - name: install packages
-    yum:
-      name: "{{ packages }}"
-      state: present
+    - name: install packages
+      yum:
+        name: "{{ packages }}"
+        state: present

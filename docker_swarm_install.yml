@@ -1,0 +1,46 @@
+---
+- hosts: all
+  become: true
+
+  roles:
+    - local_docker_pi
+    
+  tasks:
+    - name: install fail2ban
+      apt:
+        name: fail2ban
+        state: latest
+      
+    - name: enable fail2ban
+      systemd:
+        name: fail2ban
+        enabled: yes
+        state: started
+    
+    - name: install firewalld
+      apt:
+        name: firewalld
+        state: latest
+
+    - name: enable firewalld
+      systemd:
+        name: firewalld
+        enabled: yes
+        state: started
+
+    - name: set ports for docker swarm
+      firewalld:
+        port: "{{ item }}"
+        permanent: yes
+        state: enabled
+      with_items:
+        - 2377/tcp
+        - 7946/tcp
+        - 7946/udp
+        - 4789/udp
+    
+    - name: reload firewalld
+      systemd:
+        name: firewalld
+        state: reloaded
+

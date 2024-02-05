@@ -1,0 +1,32 @@
+- hosts: all
+  gather_facts: true
+  become: yes
+
+  tasks:
+    - name: Install DNF plugins core latest
+      dnf:
+        name: dnf-plugins-core
+        state: latest
+    
+    #- name: Add Docker repo
+    #  dnf_repository:
+    #    name: docker-ce-stable
+    #    description: Docker CE Stable - $basearch
+    #    baseurl: https://download.docker.com/linux/fedora/39/$basearch/stable
+    #    gpgkey: https://download.docker.com/linux/fedora/gpg
+    #    enabled: yes
+    #    gpgcheck: yes
+    #    repo_gpgcheck: yes
+    #    state: present
+
+    - name: install docker packages
+      dnf:
+        name: "{{ item }}"
+        state: latest
+      with_items:
+        - docker-ce 
+        - docker-ce-cli 
+        - containerd.io 
+        - docker-buildx-plugin 
+        - docker-compose-plugin
+        - docker-compose

@@ -1,0 +1,31 @@
+---
+# tasks file for install_chef
+
+- name: Copy the Chef installer to the remote node
+  copy:
+    src: ./chef_files/chef-12.19.36-1.el7.x86_64.rpm
+    dest: /tmp/chef-12.19.36-1.el7.x86_64.rpm
+
+- name: Install Chef on the remote node
+  yum:
+    name: /tmp/chef-12.19.36-1.el7.x86_64.rpm
+    state: present
+
+- name: Verify that Chef is installed
+  command: chef-client --version
+  register: chef_version
+
+- name: Print the Chef version
+  debug:
+    msg: "Chef version is {{ chef_version.stdout }}"
+ 
+- name: copy hahnx117.pem
+  copy:
+    src: ./chef_files/hahnx117.pem
+    dest: "{{ chef_dir }}/knife.pem"
+
+- name: copy knife.rb
+  copy:
+    src: ./chef_files/knife.rb
+    dest: "{{ chef_dir }}/knife.rb"
+

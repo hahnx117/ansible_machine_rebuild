@@ -97,3 +97,29 @@ wget https://repo.protonvpn.com/fedora-39-stable/protonvpn-stable-release/proton
 
 sudo dnf install ./protonvpn-stable-release-1.0.1-2.noarch.rpm
 ```
+
+## Kubernetes head node setup
+
+### Kubernetes Repo
+
+```
+wget -O- https://packages.cloud.google.com/apt/doc/apt-key.gpg |
+    gpg --dearmor |
+    sudo tee /etc/apt/keyrings/kubernetes-archive-keyring.gpg > /dev/null
+    sudo chmod 644 /etc/apt/keyrings/kubernetes-archive-keyring.gpg
+```
+`/etc/apt/sources.list.d/kubernetes.list`:
+```
+deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main
+
+```
+
+
+You should now deploy a pod network to the cluster.
+Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+  https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+Then you can join any number of worker nodes by running the following on each as root:
+
+kubeadm join 192.168.0.79:6443 --token 4c2rai.gmlrpwtccmuhuwbm \
+	--discovery-token-ca-cert-hash sha256:d4a7e82d998032ec08a77404f6fe56b96a71a30fc430013bb23d066d28dccd2a 

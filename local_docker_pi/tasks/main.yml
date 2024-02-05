@@ -54,11 +54,11 @@
     groups: docker
     append: yes
 
-- name: append line in docker service file to allow insecure registries (local)
-  lineinfile:
-    path: /usr/lib/systemd/system/docker.service
-    regexp: '^ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock'
-    line: ExecStart=/usr/bin/dockerd --insecure-registry {{ docker_registry_ip }}:{{ docker_registry_port }} -H fd:// --containerd=/run/containerd/containerd.sock
+#- name: append line in docker service file to allow insecure registries (local)
+#  lineinfile:
+#    path: /usr/lib/systemd/system/docker.service
+#    regexp: '^ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock'
+#    line: ExecStart=/usr/bin/dockerd --insecure-registry {{ docker_registry_ip }}:{{ docker_registry_port }} -H fd:// --containerd=/run/containerd/containerd.sock
 
 - name: start docker service
   service:
