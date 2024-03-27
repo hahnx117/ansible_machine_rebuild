@@ -2,8 +2,7 @@
   become: true
 
   vars:
-    fail2ban_install: False
-    add_gpg_key: False
+    add_gpg_key: false
     gpg_key_path: /home/david
     ssh_key_path: /home/david/.ssh
     docker_remove_packages:
@@ -49,13 +48,26 @@
       - firewalld
       - pinentry
       - python3-pip
+      - openconnect
+      - golang-github-prometheus-node-exporter
 
     ansible_pip:
       - ansible-dev-tools
       - ansible-lint
       - ansible-core
-  
+
   tasks:
+    - name: download epel for 9
+      get_url:
+        url: https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+        dest: /tmp/epel-release-latest-9.noarch.rpm
+        mode: 0644
+
+    - name: install epel for 9
+      package:
+        name: /tmp/epel-release-latest-9.noarch.rpm
+        state: present
+
     - name: place docker-ce.repo
       copy:
         src: repo_files/docker-ce.repo
@@ -63,7 +75,7 @@
         owner: root
         group: root
         mode: 0644
-        force: no
+        force: false
 
     - name: copy over ssh private key
       copy:
@@ -72,7 +84,7 @@
         owner: david
         group: david
         mode: 0600
-        force: no
+        force: false
 
     - name: copy over ssh public key
       copy:
@@ -81,7 +93,7 @@
         owner: david
         group: david
         mode: 0600
-        force: no
+        force: false
 
     - name: copy GPG key to homedir
       copy:
@@ -90,18 +102,18 @@
         owner: david
         group: david
         mode: 0600
-        force: no
-      when: add_gpg_key == True
+        force: false
+      when: add_gpg_key is True
 
     - name: import GPG key
       command: "gpg --import {{ gpg_key_path }}/key.gpg"
-      when: add_gpg_key == True
+      when: add_gpg_key is True
 
     - name: remove key.gpg
       file:
         path: "{{ gpg_key_path }}/key.gpg"
         state: absent
-      when: add_gpg_key == True
+      when: add_gpg_key is True
 
     - name: set crontab for work start
       cron:
@@ -124,60 +136,71 @@
     - name: install basic packages
       package:
         name: "{{ item }}"
-        state: latest
+        state: present
       with_items: "{{ basic_packages }}"
 
     - name: enable fail2ban
       service:
         name: fail2ban
-        enabled: yes
+        enabled: true
         state: started
-      when: fail2ban_install == True
-    
+
     - name: install firewalld
       package:
         name: firewalld
-        state: latest
-    
+        state: present
+
     - name: enable firewalld
       service:
         name: firewalld
-        enabled: yes
+        enabled: true
         state: started
-    
+
     - name: set port to test CNNDOE
       firewalld:
         port: 3838/tcp
-        permanent: yes
+        permanent: true
         state: enabled
-    
+
+    - name: open port 9100/tcp for prometheus
+      firewalld:
+        port: 9100/tcp
+        permanent: true
+        state: enabled
+
+    - name: open port 9100/udp for prometheus
+      firewalld:
+        port: 9100/udp
+        permanent: true
+        state: enabled
+
     - name: reload firewalld
       service:
         name: firewalld
         state: reloaded
-  
+
     - name: remove old docker packages
       package:
         name: "{{ item }}"
         state: absent
       with_items: "{{ docker_remove_packages }}"
-    
+
     - name: install docker
       package:
         name: "{{ item }}"
-        state: latest
+        state: present
       with_items: "{{ docker_install_packages }}"
 
     - name: add user to docker group
       user:
         name: "{{ docker_user }}"
         groups: docker
-        append: yes
-    
+        append: true
+
     - name: enable docker
       service:
         name: docker
-        enabled: yes
+        enabled: true
         state: started
 
     - name: copy bash_profile over
@@ -187,17 +210,24 @@
         owner: david
         group: david
         mode: 0644
-        force: yes
+        force: true
 
     - name: clone cla-rce-password repo
       ansible.builtin.git:
         repo: git@github.umn.edu:cla-rce/system-passwords.git
         dest: /home/david/system-passwords
-        accept_hostkey: no
+        accept_hostkey: false
         key_file: "{{ ssh_key_path }}/id_rsa"
-      become: no
+        version: master
+      become: false
 
     - name: install ansible
       pip:
         name: "{{ ansible_pip }}"
-      become: no
+      become: false
+
+    - name: start prometheus-node-exporter.service
+      service:
+        name: prometheus-node-exporter
+        enabled: true
+        state: started
