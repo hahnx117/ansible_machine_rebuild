@@ -48,7 +48,13 @@
       - make
       - firewalld
       - pinentry
+      - python3-pip
 
+    ansible_pip:
+      - ansible-dev-tools
+      - ansible-lint
+      - ansible-core
+  
   tasks:
     - name: place docker-ce.repo
       copy:
@@ -189,4 +195,9 @@
         dest: /home/david/system-passwords
         accept_hostkey: no
         key_file: "{{ ssh_key_path }}/id_rsa"
+      become: no
+
+    - name: install ansible
+      pip:
+        name: "{{ ansible_pip }}"
       become: no
