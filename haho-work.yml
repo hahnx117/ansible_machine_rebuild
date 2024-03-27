@@ -1,0 +1,174 @@
+- hosts: haho-work
+  become: true
+
+  vars:
+    fail2ban_install: False
+    add_gpg_key: False
+    gpg_key_path: /home/david
+    ssh_key_path: /home/david/.ssh
+    docker_remove_packages:
+      - docker-client
+      - docker-client-latest
+      - docker-common
+      - docker-latest
+      - docker-latest-logrotate
+      - docker-logrotate
+      - docker-engine
+      - podman
+      - runc
+    docker_install_packages:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    docker_user: david
+    inout_in_url: https://inout.cla.umn.edu/api/latis/inout/81964/in/332dd
+    inout_out_url: https://inout.cla.umn.edu/api/latis/inout/81964/out/332dd
+    basic_packages:
+      - git
+      - make
+      - firewalld
+      - pinentry
+
+  tasks:
+    - name: place docker-ce.repo
+      copy:
+        src: repo_files/docker-ce.repo
+        dest: /etc/yum.repos.d/docker-ce.repo
+        owner: root
+        group: root
+        mode: 0644
+        force: no
+
+    - name: copy over ssh private key
+      copy:
+        src: ssh_keys/id_rsa
+        dest: "{{ ssh_key_path }}/id_rsa"
+        owner: david
+        group: david
+        mode: 0600
+        force: no
+
+    - name: copy over ssh public key
+      copy:
+        src: ssh_keys/id_rsa.pub
+        dest: "{{ ssh_key_path }}/id_rsa.pub"
+        owner: david
+        group: david
+        mode: 0600
+        force: no
+
+    - name: copy GPG key to homedir
+      copy:
+        src: gpg_keys/key.gpg
+        dest: "{{ gpg_key_path }}/key.gpg"
+        owner: david
+        group: david
+        mode: 0600
+        force: no
+      when: add_gpg_key == True
+
+    - name: import GPG key
+      command: "gpg --import {{ gpg_key_path }}/key.gpg"
+      when: add_gpg_key == True
+
+    - name: remove key.gpg
+      file:
+        path: "{{ gpg_key_path }}/key.gpg"
+        state: absent
+      when: add_gpg_key == True
+
+    - name: set crontab for work start
+      cron:
+        name: "work_start"
+        day: "1-5"
+        minute: "56"
+        hour: "7"
+        job: "curl {{ inout_in_url }}"
+        user: "{{ docker_user }}"
+
+    - name: set crontab for work end
+      cron:
+        name: "work_end"
+        day: "1-5"
+        minute: "2"
+        hour: "16"
+        job: "curl {{ inout_out_url }}"
+        user: "{{ docker_user }}"
+
+    - name: install basic packages
+      package:
+        name: "{{ item }}"
+        state: latest
+      with_items: "{{ basic_packages }}"
+
+    - name: enable fail2ban
+      service:
+        name: fail2ban
+        enabled: yes
+        state: started
+      when: fail2ban_install == True
+    
+    - name: install firewalld
+      package:
+        name: firewalld
+        state: latest
+    
+    - name: enable firewalld
+      service:
+        name: firewalld
+        enabled: yes
+        state: started
+    
+    - name: set port to test CNNDOE
+      firewalld:
+        port: 3838/tcp
+        permanent: yes
+        state: enabled
+    
+    - name: reload firewalld
+      service:
+        name: firewalld
+        state: reloaded
+  
+    - name: remove old docker packages
+      package:
+        name: "{{ item }}"
+        state: absent
+      with_items: "{{ docker_remove_packages }}"
+    
+    - name: install docker
+      package:
+        name: "{{ item }}"
+        state: latest
+      with_items: "{{ docker_install_packages }}"
+
+    - name: add user to docker group
+      user:
+        name: "{{ docker_user }}"
+        groups: docker
+        append: yes
+    
+    - name: enable docker
+      service:
+        name: docker
+        enabled: yes
+        state: started
+
+    - name: copy bash_profile over
+      copy:
+        src: bash_profiles/haho_work.bash_profile
+        dest: /home/david/.bash_profile
+        owner: david
+        group: david
+        mode: 0644
+        force: yes
+
+    - name: clone cla-rce-password repo
+      ansible.builtin.git:
+        repo: git@github.umn.edu:cla-rce/system-passwords.git
+        dest: /home/david/system-passwords
+        accept_hostkey: no
+        key_file: "{{ ssh_key_path }}/id_rsa"
+      become: no
